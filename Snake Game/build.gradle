@@ -1,0 +1,102 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: 'application'
+apply plugin: org.cs1331.gitsubmitter.GitSubmitterPlugin
+
+mainClassName = "snake.SnakeGame"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url 'http://repo.tweedbathrobe.com'
+        }
+    }
+    dependencies { classpath 'org.cs1331:git-submitter-gradle-plugin:0.3' }
+}
+
+checkstyle {
+    configFile = new File(rootDir, 'cs1331-checkstyle.xml')
+    ignoreFailures = true
+    showViolations = false
+}
+
+submission {
+    collabs     = ['cs257', 'kcartledge3', 'tshields3']    //List the users here
+    repo_name   = 'hw-snake'     // Put the desired repository name prefix here
+    files       = ['src/main/java']
+}
+
+task removeClassFiles(type: Delete) {
+    delete fileTree('src/main/java') {
+        include '**/*.class'
+    }
+}
+
+task compile(dependsOn: ['clean', 'compileJava'])
+
+task checkstyle(dependsOn: ['removeClassFiles', 'checkstyleMain', 'clean']) << {
+    def htmlReport = new java.io.File("${rootDir}/build/reports/checkstyle/main.html")
+    if (htmlReport.exists()) {
+        if (java.awt.Desktop.isDesktopSupported()) {
+            def desktop = java.awt.Desktop.getDesktop()
+            if (desktop == null) {
+                print "ERROR: Could not open the checkstyle report file. "
+                print "Please open it manually at: "
+                println htmlReport.toURI().toString()
+            } else {
+                try {
+                    desktop.browse(htmlReport.toURI())
+                } catch (Exception e) {
+                    print "ERROR: Could not open the checkstyle report file. "
+                    print "Please open it manually at: "
+                    println htmlReport.toURI().toString()
+                }
+            }
+        } else {
+            print "ERROR: Could not open the checkstyle report file."
+            print "Please open it manually at: "
+            println htmlReport.toURI().toString()
+        }
+    } else {
+        print "ERROR: checkstyle report not found. Are you sure there are "
+        println "java files located in ${rootDir}/src/main/java?"
+    }
+}
+
+//Set up some dependencies
+test.dependsOn clean
+submit.dependsOn clean
+submit.dependsOn removeClassFiles
+
+//Make sure class files are remove from src/main/java first
+submit.mustRunAfter removeClassFiles
+tasks.checkstyle.mustRunAfter removeClassFiles
+
+// Make sure that clean is always run first
+build.mustRunAfter clean
+assemble.mustRunAfter clean
+jar.mustRunAfter clean
+check.mustRunAfter clean
+checkstyleMain.mustRunAfter clean
+checkstyleTest.mustRunAfter clean
+test.mustRunAfter clean
+classes.mustRunAfter clean
+compileJava.mustRunAfter clean
+processResources.mustRunAfter clean
+testClasses.mustRunAfter clean
+compileTestJava.mustRunAfter clean
+processTestResources.mustRunAfter clean
+submit.mustRunAfter clean
+tasks.checkstyle.mustRunAfter clean
+
+jar.enabled = false
+checkstyleTest.enabled = false
