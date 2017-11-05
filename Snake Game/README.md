@@ -1,16 +1,7 @@
-# Snake? Snake? SNAAAAAAAAAAAAKE!
+#The "Snake Game" is a classic videogame where a snake navigates around a square field eating items which cause him to grow in length.
 
-## Jim, Susanna, Tejas
+#The goal of the game is to grow as large as possible without running into your own body or the walls. 
 
-## How to compile and run
+#An example of the game can be found online at http://patorjk.com/games/snake/
 
-You need to be in root folder to compile files.
-
-```bash
-javac -cp src/main/java src/main/java/snake/*.java
-```
-
-To run:
-```bash
-java -cp src/main/java snake.SnakeGame
-```
+#I implemented this game using JavaFX.
